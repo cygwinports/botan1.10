@@ -1,0 +1,51 @@
+inherit python
+
+NAME="botan1.10"
+VERSION=1.10.5
+RELEASE=1
+CATEGORY="Libs"
+SUMMARY="C++ crypto library"
+DESCRIPTION="Botan is a crypto library for C++ released under the permissive
+2-clause BSD license. It provides most any cryptographic algorithm you might be
+looking for, along with Transport Layer Security (TLS), X.509 certs, CRLs, and
+path validation, a pipeline-style message processing system, bcrypt password
+hashing, and other useful things."
+HOMEPAGE="http://botan.randombit.net/"
+#SRC_URI="http://files.randombit.net/botan/Botan-${VERSION}.tbz"
+md5sum=ac941b269bd6c73ab40b63577482b163
+SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tbz/${md5sum}/Botan-${VERSION}.stripped.tbz"
+SRC_DIR="Botan-${VERSION}"
+PATCH_URI="1.10.5-cygwin.patch"
+
+PKG_NAMES="libbotan1.10_0 libbotan1.10-devel python-botan"
+libbotan1_10_0_CONTENTS="usr/bin/cygbotan-1.10-0.dll usr/share/doc/"
+libbotan1_10_devel_CONTENTS="usr/bin/botan-config-1.10 usr/include/botan-1.10/
+	usr/lib/libbotan-1.10.dll.a usr/lib/pkgconfig/botan-1.10.pc"
+python_botan_CATEGORY="Python"
+python_botan_SUMMARY="${SUMMARY} (Python bindings)"
+python_botan_CONTENTS="${PYTHON_SITELIB#/}/botan/"
+
+src_compile() {
+	lndirs
+	cd ${B}
+	./configure.py \
+		--cc=${CC##*-} --os=cygwin --cpu=${ARCH} \
+		--prefix=/usr --enable-shared \
+		--with-openssl --with-gnump --with-bzip2 --with-zlib \
+		--with-boost-python --with-python-version=${PYTHON_VERSION} \
+		|| error "configure failed"
+	cygmake CXX="${CXX} ${CXXFLAGS}"
+	cygmake -f Makefile.python CXX="${CXX} ${CXXFLAGS}"
+}
+
+src_install() {
+	cd ${B}
+	cygmake install -j1 DESTDIR=${D}/usr
+	# remove static lib
+	rm -f ${D}/usr/lib/libbotan-1.10.a
+
+	cygmake -f Makefile.python install -j1 PYTHON_SITE_PACKAGE_DIR=${D}${PYTHON_SITELIB}
+	python_optimize
+
+	dodoc doc/*.txt
+}

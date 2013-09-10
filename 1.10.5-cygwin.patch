@@ -1,0 +1,102 @@
+--- origsrc/Botan-1.10.5/src/build-data/cc/gcc.txt	2013-03-02 15:19:37.000000000 -0600
++++ src/Botan-1.10.5/src/build-data/cc/gcc.txt	2013-05-14 02:22:22.639105200 -0500
+@@ -17,7 +17,7 @@ maintainer_warning_flags "-Werror -Wall
+ 
+ lib_opt_flags "-O3"
+ check_opt_flags "-O2"
+-shared_flags "-fPIC"
++shared_flags "-DPIC"
+ debug_flags -g
+ no_debug_flags "-finline-functions"
+ 
+@@ -36,6 +36,7 @@ aix     -> "$(CXX) -shared -fPIC"
+ # OpenBSD doesn't use soname
+ openbsd -> "$(CXX) -shared -fPIC"
+ 
++cygwin  -> "$(CXX) -shared -Wl,--out-implib,$(SYMLINK)"
+ darwin  -> "$(CXX) -dynamiclib -fPIC -install_name $(LIBDIR)/$(SONAME)"
+ hpux    -> "$(CXX) -shared -fPIC -Wl,+h,$(SONAME)"
+ solaris -> "$(CXX) -shared -fPIC -Wl,-h,$(SONAME)"
+--- origsrc/Botan-1.10.5/src/build-data/makefile/python.in	2013-03-02 15:19:37.000000000 -0600
++++ src/Botan-1.10.5/src/build-data/makefile/python.in	2013-09-10 12:10:12.007979200 -0500
+@@ -15,13 +15,13 @@ BOTAN_PYTHON_MODDIR = %{python_obj_dir}
+ 
+ PYTHON_OBJS   = %{python_objs}
+ 
+-all: $(BOTAN_PYTHON_MODDIR)/_botan.so
++all: $(BOTAN_PYTHON_MODDIR)/_botan.dll
+ 
+ %{python_build_cmds}
+ 
+-$(BOTAN_PYTHON_MODDIR)/_botan.so: $(PYTHON_OBJS)
++$(BOTAN_PYTHON_MODDIR)/_botan.dll: $(PYTHON_OBJS)
+ 	cp %{python_dir}/*.py $(BOTAN_PYTHON_MODDIR)
+-	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python -o $@
++	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python-mt -lpython%{python_version} -o $@
+ 
+ clean:
+ 	rm -rf $(BOTAN_PYTHON_MODDIR)/*
+@@ -29,5 +29,5 @@ clean:
+ 
+ install:
+ 	mkdir -p $(PYTHON_SITE_PACKAGE_DIR)/botan
+-	cp $(BOTAN_PYTHON_MODDIR)/_botan.so $(BOTAN_PYTHON_MODDIR)/*.py $(PYTHON_SITE_PACKAGE_DIR)/botan
++	cp $(BOTAN_PYTHON_MODDIR)/_botan.dll $(BOTAN_PYTHON_MODDIR)/*.py $(PYTHON_SITE_PACKAGE_DIR)/botan
+ 	chmod -R u=rwX,go=rX $(PYTHON_SITE_PACKAGE_DIR)/botan
+--- origsrc/Botan-1.10.5/src/build-data/makefile/unix_shr.in	2013-03-02 15:19:37.000000000 -0600
++++ src/Botan-1.10.5/src/build-data/makefile/unix_shr.in	2013-05-14 02:54:44.231157900 -0500
+@@ -57,10 +57,10 @@ LIBRARIES     = $(STATIC_LIB) $(SHARED_L
+ LIBNAME       = %{lib_prefix}libbotan
+ STATIC_LIB    = $(LIBNAME)-$(SERIES).a
+ 
+-SONAME        = $(LIBNAME)-$(SERIES).%{so_suffix}.%{so_abi_rev}
+-SHARED_LIB    = $(SONAME).%{version_patch}
++SONAME        = $(LIBNAME:lib%%=cyg%%)-$(SERIES)-%{so_abi_rev}.dll
++SHARED_LIB    = $(SONAME)
+ 
+-SYMLINK       = $(LIBNAME)-$(SERIES).%{so_suffix}
++SYMLINK       = $(LIBNAME)-$(SERIES).dll.a
+ 
+ all: $(LIBRARIES)
+ 
+@@ -80,8 +80,6 @@ $(STATIC_LIB): $(LIBOBJS)
+ 
+ $(SHARED_LIB): $(LIBOBJS)
+ 	$(SO_LINK_CMD) $(LDFLAGS) $(LIBOBJS) -o $(SHARED_LIB) $(LINK_TO)
+-	$(LN) $(SHARED_LIB) $(SONAME)
+-	$(LN) $(SHARED_LIB) $(SYMLINK)
+ 
+ # Fake Targets
+ .PHONY = docs clean distclean install static shared
+@@ -114,11 +112,10 @@ install: $(LIBRARIES) docs
+ 
+ 	$(MKDIR_INSTALL) $(LIBDIR)
+ 	$(INSTALL_CMD_DATA) $(STATIC_LIB) $(LIBDIR)
+-	$(INSTALL_CMD_EXEC) $(SHARED_LIB) $(LIBDIR)
+-	$(CD) $(LIBDIR); $(LN) $(SHARED_LIB) $(SYMLINK)
+-	$(CD) $(LIBDIR); $(LN) $(SHARED_LIB) $(SONAME)
++	$(INSTALL_CMD_DATA) $(SYMLINK) $(LIBDIR)
+ 
+ 	$(MKDIR_INSTALL) $(BINDIR)
++	$(INSTALL_CMD_EXEC) $(SHARED_LIB) $(BINDIR)
+ 	$(INSTALL_CMD_EXEC) $(CONFIG_SCRIPT) $(BINDIR)
+ 
+ 	$(MKDIR_INSTALL) $(PKGCONF_DIR)
+--- origsrc/Botan-1.10.5/src/build-data/os/cygwin.txt	2013-03-02 15:19:37.000000000 -0600
++++ src/Botan-1.10.5/src/build-data/os/cygwin.txt	2013-05-14 01:55:46.667820900 -0500
+@@ -1,13 +1,7 @@
+ os_type unix
+ 
+-# Cygwin supports shared libs fine, but there are problems with making a Botan
+-# shared library when libraries it depends on are static-only (such as libz).
+-# So until I can figure out a work-around, it's disabled.
+-build_shared no
+-
+-install_root c:\Botan
+-doc_dir docs
+-
+ <target_features>
++clock_gettime
+ gettimeofday
++dlopen
+ </target_features>
