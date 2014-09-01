@@ -32,7 +32,7 @@
 +$(BOTAN_PYTHON_MODDIR)/_botan.dll: $(PYTHON_OBJS)
  	cp %{python_dir}/*.py $(BOTAN_PYTHON_MODDIR)
 -	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python -o $@
-+	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python-mt -lpython%{python_version} -o $@
++	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python -lpython%{python_version} -o $@
  
  clean:
  	rm -rf $(BOTAN_PYTHON_MODDIR)/*
