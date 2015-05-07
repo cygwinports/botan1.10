@@ -1,8 +1,8 @@
 inherit python
 
 NAME="botan1.10"
-VERSION=1.10.8
-RELEASE=2
+VERSION=1.10.9
+RELEASE=1
 CATEGORY="Libs"
 SUMMARY="C++ crypto library"
 DESCRIPTION="Botan is a crypto library for C++ released under the permissive
@@ -12,10 +12,13 @@ path validation, a pipeline-style message processing system, bcrypt password
 hashing, and other useful things."
 HOMEPAGE="http://botan.randombit.net/"
 #SRC_URI="http://files.randombit.net/botan/Botan-${VERSION}.tbz"
-md5sum=c7ebfad55bdfe0089e6201d11b0faa75
+md5sum=44eb12a2757f51623b17b38fe8b9df2c
 SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tbz/${md5sum}/Botan-${VERSION}.stripped.tbz"
 SRC_DIR="Botan-${VERSION}"
-PATCH_URI="1.10.5-cygwin.patch"
+PATCH_URI="
+	http://pkgs.fedoraproject.org/cgit/botan.git/plain/botan-1.10.5-ecc-fix.patch
+	1.10.5-cygwin.patch
+"
 
 PKG_NAMES="libbotan1.10_0 libbotan1.10-devel libbotan1.10-doc python-botan"
 libbotan1_10_0_CONTENTS="usr/bin/cygbotan-1.10-0.dll usr/share/doc/${NAME}/*.txt"
