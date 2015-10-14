@@ -2,7 +2,7 @@ inherit python
 
 NAME="botan1.10"
 VERSION=1.10.9
-RELEASE=1
+RELEASE=2
 CATEGORY="Libs"
 SUMMARY="C++ crypto library"
 DESCRIPTION="Botan is a crypto library for C++ released under the permissive
