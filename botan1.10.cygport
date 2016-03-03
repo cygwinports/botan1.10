@@ -1,8 +1,8 @@
 inherit python
 
 NAME="botan1.10"
-VERSION=1.10.9
-RELEASE=2
+VERSION=1.10.12
+RELEASE=1
 CATEGORY="Libs"
 SUMMARY="C++ crypto library"
 DESCRIPTION="Botan is a crypto library for C++ released under the permissive
@@ -11,21 +11,21 @@ looking for, along with Transport Layer Security (TLS), X.509 certs, CRLs, and
 path validation, a pipeline-style message processing system, bcrypt password
 hashing, and other useful things."
 HOMEPAGE="http://botan.randombit.net/"
-#SRC_URI="http://files.randombit.net/botan/Botan-${VERSION}.tbz"
-md5sum=44eb12a2757f51623b17b38fe8b9df2c
-SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tbz/${md5sum}/Botan-${VERSION}.stripped.tbz"
+#SRC_URI="http://botan.randombit.net/releases/Botan-${VERSION}.tgz"
+md5sum=d59f0fd44bc3f8b71025d79c9ffe75ba
+SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tar.gz/${md5sum}/Botan-${VERSION}.stripped.tar.gz"
 SRC_DIR="Botan-${VERSION}"
 PATCH_URI="
 	http://pkgs.fedoraproject.org/cgit/botan.git/plain/botan-1.10.5-ecc-fix.patch
 	1.10.5-cygwin.patch
 "
 
-PKG_NAMES="libbotan1.10_0 libbotan1.10-devel libbotan1.10-doc python-botan"
-libbotan1_10_0_CONTENTS="usr/bin/cygbotan-1.10-0.dll usr/share/doc/${NAME}/*.txt"
+PKG_NAMES="libbotan1.10_1 libbotan1.10-devel libbotan1.10-doc python-botan"
+libbotan1_10_1_CONTENTS="usr/bin/cygbotan-1.10-1.dll usr/share/doc/${NAME}/*.txt"
 libbotan1_10_devel_CONTENTS="usr/bin/botan-config-1.10 usr/include/botan-1.10/
 	usr/lib/libbotan-1.10.dll.a usr/lib/pkgconfig/botan-1.10.pc"
 libbotan1_10_doc_CATEGORY="Doc"
-libbotan1_10_doc_CONTENTS="usr/share/doc/${NAME}/doxygen/"
+libbotan1_10_doc_CONTENTS="usr/share/doc/${NAME}/*/"
 python_botan_CATEGORY="Python"
 python_botan_SUMMARY="${SUMMARY} (Python bindings)"
 python_botan_CONTENTS="${PYTHON_SITELIB#/}/botan/"
@@ -36,8 +36,8 @@ src_compile() {
 	./configure.py \
 		--cc=${CC##*-} --os=cygwin --cpu=${ARCH} \
 		--prefix=/usr --enable-shared \
-		--with-openssl --with-gnump --with-bzip2 --with-zlib \
-		--with-doxygen --without-sphinx \
+		--with-openssl --without-gnump --with-bzip2 --with-zlib \
+		--with-doxygen --with-sphinx \
 		--with-boost-python --with-python-version=${PYTHON_VERSION} \
 		|| error "configure failed"
 	cygmake CXX="${CXX} ${CXXFLAGS}"
@@ -54,5 +54,5 @@ src_install() {
 	python_optimize
 
 	rm -fr doc/doxygen/latex/
-	dodoc doc/*.txt doc/doxygen/
+	dodoc doc/readme.txt doc/license.txt doc/doxygen/ doc/manual/
 }
