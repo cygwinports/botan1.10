@@ -1,7 +1,7 @@
 inherit python
 
 NAME="botan1.10"
-VERSION=1.10.12
+VERSION=1.10.13
 RELEASE=1
 CATEGORY="Libs"
 SUMMARY="C++ crypto library"
@@ -12,7 +12,7 @@ path validation, a pipeline-style message processing system, bcrypt password
 hashing, and other useful things."
 HOMEPAGE="http://botan.randombit.net/"
 #SRC_URI="http://botan.randombit.net/releases/Botan-${VERSION}.tgz"
-md5sum=d59f0fd44bc3f8b71025d79c9ffe75ba
+md5sum=d7cc44ba99c8b989913a11a5a8acf927
 SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tar.gz/${md5sum}/Botan-${VERSION}.stripped.tar.gz"
 SRC_DIR="Botan-${VERSION}"
 PATCH_URI="
