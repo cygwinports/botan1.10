@@ -1,7 +1,7 @@
-inherit python
+inherit python2 python3
 
 NAME="botan1.10"
-VERSION=1.10.13
+VERSION=1.10.16
 RELEASE=1
 CATEGORY="Libs"
 SUMMARY="C++ crypto library"
@@ -12,7 +12,7 @@ path validation, a pipeline-style message processing system, bcrypt password
 hashing, and other useful things."
 HOMEPAGE="http://botan.randombit.net/"
 #SRC_URI="http://botan.randombit.net/releases/Botan-${VERSION}.tgz"
-md5sum=d7cc44ba99c8b989913a11a5a8acf927
+md5sum=c068a9c7f9eb8cf05a77fe8cacc74f93
 SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tar.gz/${md5sum}/Botan-${VERSION}.stripped.tar.gz"
 SRC_DIR="Botan-${VERSION}"
 PATCH_URI="
@@ -20,15 +20,19 @@ PATCH_URI="
 	1.10.5-cygwin.patch
 "
 
-PKG_NAMES="libbotan1.10_1 libbotan1.10-devel libbotan1.10-doc python-botan"
+PKG_NAMES="libbotan1.10_1 libbotan1.10-devel libbotan1.10-doc python2-botan python3-botan"
 libbotan1_10_1_CONTENTS="usr/bin/cygbotan-1.10-1.dll usr/share/doc/${NAME}/*.txt"
 libbotan1_10_devel_CONTENTS="usr/bin/botan-config-1.10 usr/include/botan-1.10/
 	usr/lib/libbotan-1.10.dll.a usr/lib/pkgconfig/botan-1.10.pc"
 libbotan1_10_doc_CATEGORY="Doc"
 libbotan1_10_doc_CONTENTS="usr/share/doc/${NAME}/*/"
-python_botan_CATEGORY="Python"
-python_botan_SUMMARY="${SUMMARY} (Python bindings)"
-python_botan_CONTENTS="${PYTHON_SITELIB#/}/botan/"
+python2_botan_CATEGORY="Python"
+python2_botan_OBSOLETES="python-botan"
+python2_botan_SUMMARY="${SUMMARY} (Python 2 bindings)"
+python2_botan_CONTENTS="${PYTHON2_SITELIB#/}/botan/"
+python3_botan_CATEGORY="Python"
+python3_botan_SUMMARY="${SUMMARY} (Python 3 bindings)"
+python3_botan_CONTENTS="${PYTHON3_SITELIB#/}/botan/"
 
 src_compile() {
 	lndirs
@@ -38,10 +42,28 @@ src_compile() {
 		--prefix=/usr --enable-shared \
 		--with-openssl --without-gnump --with-bzip2 --with-zlib \
 		--with-doxygen --with-sphinx \
-		--with-boost-python --with-python-version=${PYTHON_VERSION} \
+		--with-boost-python --with-python-version=X.Y \
 		|| error "configure failed"
+
 	cygmake CXX="${CXX} ${CXXFLAGS}"
-	cygmake -f Makefile.python CXX="${CXX} ${CXXFLAGS}"
+
+	cp -a build/python{,3}
+
+	cygmake -f Makefile.python \
+		CXX="${CXX} ${CXXFLAGS}" \
+		LDFLAGS="-lboost_python ${LIBPYTHON2}" \
+		PYTHON_INC="-I${PYTHON2_INCLUDEDIR}"
+
+	mv build/python{,2}
+	mv build/python{3,}
+
+	cygmake -f Makefile.python \
+		CXX="${CXX} ${CXXFLAGS}" \
+		LDFLAGS="-lboost_python3 ${LIBPYTHON3}" \
+		PYTHON_INC="-I${PYTHON3_INCLUDEDIR}"
+
+	mv build/python{,3}
+	mv build/python{2,}
 }
 
 src_install() {
@@ -50,8 +72,15 @@ src_install() {
 	# remove static lib
 	rm -f ${D}/usr/lib/libbotan-1.10.a
 
-	cygmake -f Makefile.python install -j1 PYTHON_SITE_PACKAGE_DIR=${D}${PYTHON_SITELIB}
-	python_optimize
+	cygmake -f Makefile.python install -j1 PYTHON_SITE_PACKAGE_DIR=${D}${PYTHON2_SITELIB}
+
+	mv build/python{,2}
+	mv build/python{3,}
+
+	cygmake -f Makefile.python install -j1 PYTHON_SITE_PACKAGE_DIR=${D}${PYTHON3_SITELIB}
+
+	mv build/python{,3}
+	mv build/python{2,}
 
 	rm -fr doc/doxygen/latex/
 	dodoc doc/readme.txt doc/license.txt doc/doxygen/ doc/manual/

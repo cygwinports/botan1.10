@@ -17,8 +17,16 @@
  darwin  -> "$(CXX) -dynamiclib -fPIC -install_name $(LIBDIR)/$(SONAME)"
  hpux    -> "$(CXX) -shared -fPIC -Wl,+h,$(SONAME)"
  solaris -> "$(CXX) -shared -fPIC -Wl,-h,$(SONAME)"
---- origsrc/Botan-1.10.5/src/build-data/makefile/python.in	2013-03-02 15:19:37.000000000 -0600
-+++ src/Botan-1.10.5/src/build-data/makefile/python.in	2013-09-10 12:10:12.007979200 -0500
+--- origsrc/Botan-1.10.16/src/build-data/makefile/python.in	2017-04-04 20:06:45.000000000 -0500
++++ src/Botan-1.10.16/src/build-data/makefile/python.in	2017-05-28 13:24:15.574702400 -0500
+@@ -1,6 +1,6 @@
+ CXX           = %{cc}
+ CFLAGS        = -Os
+-LDFLAGS       =
++LDFLAGS       = -lboost_python -lpython%{python_version}
+ WARN_FLAGS    = %{warn_flags}
+ 
+ SERIES        = %{version_major}.%{version_minor}
 @@ -15,13 +15,13 @@ BOTAN_PYTHON_MODDIR = %{python_obj_dir}
  
  PYTHON_OBJS   = %{python_objs}
@@ -32,7 +40,7 @@
 +$(BOTAN_PYTHON_MODDIR)/_botan.dll: $(PYTHON_OBJS)
  	cp %{python_dir}/*.py $(BOTAN_PYTHON_MODDIR)
 -	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python -o $@
-+	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -lboost_python -lpython%{python_version} -o $@
++	$(CXX) -shared -Wl,-soname,$@ $(PYTHON_OBJS) -L. -L$(PYTHON_ROOT) $(LDFLAGS) -lbotan-$(SERIES) -o $@
  
  clean:
  	rm -rf $(BOTAN_PYTHON_MODDIR)/*
