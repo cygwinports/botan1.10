@@ -2,7 +2,7 @@ inherit python2 python3
 
 NAME="botan1.10"
 VERSION=1.10.17
-RELEASE=1
+RELEASE=2
 CATEGORY="Libs"
 SUMMARY="C++ crypto library"
 DESCRIPTION="Botan is a crypto library for C++ released under the permissive
@@ -13,7 +13,7 @@ hashing, and other useful things."
 HOMEPAGE="http://botan.randombit.net/"
 #SRC_URI="http://botan.randombit.net/releases/Botan-${VERSION}.tgz"
 sha512sum=9fc356ae042af56667ceb8430006658fe8a0c8ef2d00eb1961645bf3082e41c6850a781cc0e0672d68da1e9094532018a51465e5b2e84115c9f0af75910a9eac
-SRC_URI="http://pkgs.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tar.gz/sha512/${sha512sum}/Botan-${VERSION}.stripped.tar.gz"
+SRC_URI="http://src.fedoraproject.org/repo/pkgs/botan/Botan-${VERSION}.stripped.tar.gz/sha512/${sha512sum}/Botan-${VERSION}.stripped.tar.gz"
 SRC_DIR="Botan-${VERSION}"
 PATCH_URI="
 	http://pkgs.fedoraproject.org/cgit/botan.git/plain/botan-1.10.5-ecc-fix.patch
